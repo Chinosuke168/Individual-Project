@@ -5,8 +5,51 @@ from tkinter import filedialog, messagebox
 
 
 # ============================================================
+# ======================= CORE OTP OOP ========================
+# ============================================================
+
+class OTP:
+    @staticmethod
+    def generate_key(length: int) -> bytes:
+        return os.urandom(length)
+
+    @staticmethod
+    def xor_bytes(a: bytes, b: bytes) -> bytes:
+        return bytes([x ^ y for x, y in zip(a, b)])
+
+    @staticmethod
+    def encrypt(data: bytes) -> tuple[bytes, bytes]:
+        key = OTP.generate_key(len(data))
+        ciphertext = OTP.xor_bytes(data, key)
+        return ciphertext, key
+
+    @staticmethod
+    def decrypt(ciphertext: bytes, key: bytes) -> bytes:
+        return OTP.xor_bytes(ciphertext, key)
+
+    # ---------- XOR Key Split with hash ----------
+    @staticmethod
+    def split_key(key: bytes) -> tuple[bytes, bytes, str]:
+        r = OTP.generate_key(len(key))
+        part1 = r
+        part2 = OTP.xor_bytes(key, r)
+        key_hash = hashlib.sha256(key).hexdigest()
+        return part1, part2, key_hash
+
+    @staticmethod
+    def recover_key(part1: bytes, part2: bytes, expected_hash: str = None) -> bytes:
+        key = OTP.xor_bytes(part1, part2)
+        if expected_hash:
+            actual_hash = hashlib.sha256(key).hexdigest()
+            if actual_hash != expected_hash:
+                raise ValueError("Wrong key parts! Cannot recover the original key.")
+        return key
+    
+
+# ============================================================
 # ======================= FILE HANDLER ========================
 # ============================================================
+
 class FileHandler:
     @staticmethod
     def save(path: str, data: bytes):
@@ -17,6 +60,21 @@ class FileHandler:
     def load(path: str) -> bytes:
         with open(path, "rb") as f:
             return f.read()
+
+# ============================================================
+# ======================= AUTO RENAME =========================
+# ============================================================
+
+def auto_rename(path: str) -> str:
+    if not os.path.exists(path):
+        return path
+    base, ext = os.path.splitext(path)
+    counter = 1
+    new_path = f"{base}({counter}){ext}"
+    while os.path.exists(new_path):
+        counter += 1
+        new_path = f"{base}({counter}){ext}"
+    return new_path
 
 # ============================================================
 # ========================== GUI APP ==========================
@@ -41,6 +99,7 @@ class OTPApp:
         tk.Label(root, text="--------------------------------").pack()
 
         tk.Button(root, text="Recover Key From Parts", command=self.gui_recover_key).pack(pady=10)
+        tk.Button(root, text="Decrypt with Full Key (.key)", command=self.gui_decrypt_with_full_key).pack(pady=8)
 
     # ======================= TEXT FUNCTIONS =====================
 
