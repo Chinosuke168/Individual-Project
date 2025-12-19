@@ -45,8 +45,7 @@ Individual_Project/
 ├── file_handler.py      # File read/write and key handling
 ├── utils.py             # Utility and helper functions
 ├── gui_app.py           # Tkinter GUI implementation
-├── README.md            # Project documentation
-└── requirements.txt     # (Optional) dependencies
+└── README.md            # Project documentation
 ```
 
 ---
