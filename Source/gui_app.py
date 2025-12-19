@@ -5,27 +5,99 @@ from otp_core import OTP
 from file_handler import FileHandler
 from utils import auto_rename
 
+
+# ===================== THEME =====================
+BG_COLOR = "#0f172a"        # Dark navy
+FG_COLOR = "#e5e7eb"        # Light text
+ACCENT = "#22c55e"          # Neon green
+BTN_BG = "#1e293b"
+BTN_HOVER = "#334155"
+FONT_TITLE = ("Consolas", 16, "bold")
+FONT_TEXT = ("Consolas", 11)
+FONT_BTN = ("Consolas", 10, "bold")
+
+
 class OTPApp:
     def __init__(self, root: tk.Tk):
         self.root = root
-        root.title("OTP Cryptography Toolkit (Modular)")
+        root.title("OTP Cryptography Toolkit")
+        root.geometry("520x620")
+        root.configure(bg=BG_COLOR)
+        root.resizable(False, False)
 
-        self.text_input = tk.Text(root, height=5, width=50)
+        # ===================== TITLE =====================
+        tk.Label(
+            root,
+            text="OTP CRYPTOGRAPHY TOOLKIT",
+            fg=ACCENT,
+            bg=BG_COLOR,
+            font=FONT_TITLE
+        ).pack(pady=15)
+
+        # ===================== TEXT INPUT =====================
+        self.text_input = tk.Text(
+            root,
+            height=5,
+            width=55,
+            bg="#020617",
+            fg=ACCENT,
+            insertbackground=ACCENT,
+            font=FONT_TEXT,
+            relief="flat"
+        )
         self.text_input.pack(pady=10)
 
-        tk.Button(root, text="Encrypt Text", command=self.gui_encrypt_text).pack()
-        tk.Button(root, text="Decrypt Text", command=self.gui_decrypt_text).pack(pady=5)
+        # ===================== TEXT BUTTONS =====================
+        self.make_button("Encrypt Text", self.gui_encrypt_text)
+        self.make_button("Decrypt Text", self.gui_decrypt_text)
 
-        tk.Label(root, text="--------------------------------").pack()
+        self.separator("FILE OPERATIONS")
 
-        tk.Button(root, text="Encrypt File", command=self.gui_encrypt_file).pack(pady=10)
-        tk.Button(root, text="Decrypt File", command=self.gui_decrypt_file).pack(pady=5)
+        # ===================== FILE BUTTONS =====================
+        self.make_button("Encrypt File", self.gui_encrypt_file)
+        self.make_button("Decrypt File", self.gui_decrypt_file)
 
-        tk.Label(root, text="--------------------------------").pack()
 
-        tk.Button(root, text="Recover Key From Parts", command=self.gui_recover_key).pack(pady=10)
 
-    # -------- TEXT --------
+        # ===================== FOOTER =====================
+        tk.Label(
+            root,
+            text="One-Time Pad • Educational Use Only",
+            fg="#94a3b8",
+            bg=BG_COLOR,
+            font=("Consolas", 9)
+        ).pack(side="bottom", pady=10)
+
+    # ===================== UI HELPERS =====================
+    def make_button(self, text, command):
+        btn = tk.Button(
+            self.root,
+            text=text,
+            command=command,
+            bg=BTN_BG,
+            fg=FG_COLOR,
+            font=FONT_BTN,
+            width=30,
+            relief="flat",
+            activebackground=ACCENT,
+            activeforeground="black",
+            cursor="hand2"
+        )
+        btn.pack(pady=6)
+
+        btn.bind("<Enter>", lambda e: btn.config(bg=BTN_HOVER))
+        btn.bind("<Leave>", lambda e: btn.config(bg=BTN_BG))
+
+    def separator(self, text):
+        tk.Label(
+            self.root,
+            text=f"— {text} —",
+            fg="#38bdf8",
+            bg=BG_COLOR,
+            font=("Consolas", 10, "bold")
+        ).pack(pady=15)
+
+    # ===================== TEXT =====================
     def gui_encrypt_text(self):
         message = self.text_input.get("1.0", tk.END).strip()
         if not message:
@@ -59,7 +131,7 @@ class OTPApp:
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    # -------- FILE --------
+    # ===================== FILE =====================
     def gui_encrypt_file(self):
         path = filedialog.askopenfilename()
         if not path:
@@ -96,22 +168,3 @@ class OTPApp:
         out_path = auto_rename(cipher_path.replace('.enc', ''))
         FileHandler.save(out_path, data)
         messagebox.showinfo("Success", f"Saved: {out_path}")
-
-    # -------- KEY RECOVERY --------
-    def gui_recover_key(self):
-        p1 = filedialog.askopenfilename()
-        p2 = filedialog.askopenfilename()
-        h = filedialog.askopenfilename()
-        if not all([p1, p2, h]):
-            return
-
-        key = OTP.recover_key(
-            FileHandler.load(p1),
-            FileHandler.load(p2),
-            FileHandler.load(h).decode()
-        )
-
-        save_path = filedialog.asksaveasfilename(defaultextension=".key")
-        if save_path:
-            FileHandler.save(save_path, key)
-            messagebox.showinfo("Success", "Key recovered.")

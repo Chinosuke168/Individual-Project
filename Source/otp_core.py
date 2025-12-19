@@ -28,11 +28,4 @@ class OTP:
         key_hash = hashlib.sha256(key).hexdigest()
         return part1, part2, key_hash
 
-    @staticmethod
-    def recover_key(part1: bytes, part2: bytes, expected_hash: str | None = None) -> bytes:
-        key = OTP.xor_bytes(part1, part2)
-        if expected_hash:
-            if hashlib.sha256(key).hexdigest() != expected_hash:
-                raise ValueError("Wrong key parts! Cannot recover the original key.")
-        return key
 
