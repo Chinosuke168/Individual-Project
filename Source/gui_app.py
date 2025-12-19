@@ -6,98 +6,125 @@ from file_handler import FileHandler
 from utils import auto_rename
 
 
-# ===================== THEME =====================
-BG_COLOR = "#0f172a"        # Dark navy
-FG_COLOR = "#e5e7eb"        # Light text
-ACCENT = "#22c55e"          # Neon green
-BTN_BG = "#1e293b"
-BTN_HOVER = "#334155"
-FONT_TITLE = ("Consolas", 16, "bold")
-FONT_TEXT = ("Consolas", 11)
-FONT_BTN = ("Consolas", 10, "bold")
-
-
 class OTPApp:
     def __init__(self, root: tk.Tk):
         self.root = root
         root.title("OTP Cryptography Toolkit")
         root.geometry("520x620")
-        root.configure(bg=BG_COLOR)
+        root.configure(bg="#0f172a")  # dark blue background
         root.resizable(False, False)
 
-        # ===================== TITLE =====================
+        # ====== STYLES ======
+        self.bg = "#0f172a"
+        self.card = "#020617"
+        self.btn = "#2563eb"
+        self.btn_hover = "#1d4ed8"
+        self.text_fg = "#e5e7eb"
+        self.border = "#334155"
+
+        # ====== TITLE ======
         tk.Label(
             root,
-            text="OTP CRYPTOGRAPHY TOOLKIT",
-            fg=ACCENT,
-            bg=BG_COLOR,
-            font=FONT_TITLE
+            text="One-Time Pad Cryptography Toolkit",
+            font=("Segoe UI", 16, "bold"),
+            fg="#38bdf8",
+            bg=self.bg
         ).pack(pady=15)
 
-        # ===================== TEXT INPUT =====================
+        # ====== TEXT CARD ======
+        text_frame = tk.Frame(root, bg=self.card, bd=1, relief="solid")
+        text_frame.pack(padx=15, pady=10, fill="x")
+
+        tk.Label(
+            text_frame,
+            text="Text Encryption / Decryption",
+            font=("Segoe UI", 11, "bold"),
+            fg=self.text_fg,
+            bg=self.card
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
         self.text_input = tk.Text(
-            root,
+            text_frame,
             height=5,
             width=55,
             bg="#020617",
-            fg=ACCENT,
-            insertbackground=ACCENT,
-            font=FONT_TEXT,
-            relief="flat"
+            fg=self.text_fg,
+            insertbackground="white",
+            relief="solid",
+            bd=1
         )
-        self.text_input.pack(pady=10)
+        self.text_input.pack(padx=10, pady=5)
 
-        # ===================== TEXT BUTTONS =====================
-        self.make_button("Encrypt Text", self.gui_encrypt_text)
-        self.make_button("Decrypt Text", self.gui_decrypt_text)
+        btn_frame_text = tk.Frame(text_frame, bg=self.card)
+        btn_frame_text.pack(pady=10)
 
-        self.separator("FILE OPERATIONS")
+        self.make_button(btn_frame_text, "Encrypt Text", self.gui_encrypt_text).pack(side="left", padx=10)
+        self.make_button(btn_frame_text, "Decrypt Text", self.gui_decrypt_text).pack(side="left", padx=10)
 
-        # ===================== FILE BUTTONS =====================
-        self.make_button("Encrypt File", self.gui_encrypt_file)
-        self.make_button("Decrypt File", self.gui_decrypt_file)
+        # ====== FILE CARD ======
+        file_frame = tk.Frame(root, bg=self.card, bd=1, relief="solid")
+        file_frame.pack(padx=15, pady=10, fill="x")
 
-
-
-        # ===================== FOOTER =====================
         tk.Label(
-            root,
-            text="One-Time Pad • Educational Use Only",
-            fg="#94a3b8",
-            bg=BG_COLOR,
-            font=("Consolas", 9)
-        ).pack(side="bottom", pady=10)
+            file_frame,
+            text="File Encryption / Decryption",
+            font=("Segoe UI", 11, "bold"),
+            fg=self.text_fg,
+            bg=self.card
+        ).pack(anchor="w", padx=10, pady=(10, 5))
 
-    # ===================== UI HELPERS =====================
-    def make_button(self, text, command):
-        btn = tk.Button(
-            self.root,
-            text=text,
-            command=command,
-            bg=BTN_BG,
-            fg=FG_COLOR,
-            font=FONT_BTN,
-            width=30,
-            relief="flat",
-            activebackground=ACCENT,
-            activeforeground="black",
-            cursor="hand2"
-        )
-        btn.pack(pady=6)
+        btn_frame_file = tk.Frame(file_frame, bg=self.card)
+        btn_frame_file.pack(pady=15)
 
-        btn.bind("<Enter>", lambda e: btn.config(bg=BTN_HOVER))
-        btn.bind("<Leave>", lambda e: btn.config(bg=BTN_BG))
+        self.make_button(btn_frame_file, "Encrypt File", self.gui_encrypt_file).pack(pady=5)
+        self.make_button(btn_frame_file, "Decrypt File", self.gui_decrypt_file).pack(pady=5)
 
-    def separator(self, text):
+        # ====== KEY RECOVERY CARD ======
+        key_frame = tk.Frame(root, bg=self.card, bd=1, relief="solid")
+        key_frame.pack(padx=15, pady=10, fill="x")
+
         tk.Label(
-            self.root,
-            text=f"— {text} —",
-            fg="#38bdf8",
-            bg=BG_COLOR,
-            font=("Consolas", 10, "bold")
+            key_frame,
+            text="Key Recovery",
+            font=("Segoe UI", 11, "bold"),
+            fg=self.text_fg,
+            bg=self.card
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
+        self.make_button(
+            key_frame,
+            "Recover Key From Parts",
+            self.gui_recover_key
         ).pack(pady=15)
 
-    # ===================== TEXT =====================
+        # ====== FOOTER ======
+        tk.Label(
+            root,
+            text="Educational Use Only • OTP Demonstration",
+            font=("Segoe UI", 9),
+            fg="#94a3b8",
+            bg=self.bg
+        ).pack(pady=10)
+
+    # ====== BUTTON FACTORY ======
+    def make_button(self, parent, text, command):
+        btn = tk.Button(
+            parent,
+            text=text,
+            command=command,
+            bg=self.btn,
+            fg="white",
+            font=("Segoe UI", 10, "bold"),
+            relief="flat",
+            padx=15,
+            pady=8,
+            cursor="hand2"
+        )
+        btn.bind("<Enter>", lambda e: btn.config(bg=self.btn_hover))
+        btn.bind("<Leave>", lambda e: btn.config(bg=self.btn))
+        return btn
+
+    # -------- TEXT --------
     def gui_encrypt_text(self):
         message = self.text_input.get("1.0", tk.END).strip()
         if not message:
@@ -131,7 +158,7 @@ class OTPApp:
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    # ===================== FILE =====================
+    # -------- FILE --------
     def gui_encrypt_file(self):
         path = filedialog.askopenfilename()
         if not path:
@@ -168,3 +195,22 @@ class OTPApp:
         out_path = auto_rename(cipher_path.replace('.enc', ''))
         FileHandler.save(out_path, data)
         messagebox.showinfo("Success", f"Saved: {out_path}")
+
+    # -------- KEY RECOVERY --------
+    def gui_recover_key(self):
+        p1 = filedialog.askopenfilename()
+        p2 = filedialog.askopenfilename()
+        h = filedialog.askopenfilename()
+        if not all([p1, p2, h]):
+            return
+
+        key = OTP.recover_key(
+            FileHandler.load(p1),
+            FileHandler.load(p2),
+            FileHandler.load(h).decode()
+        )
+
+        save_path = filedialog.asksaveasfilename(defaultextension=".key")
+        if save_path:
+            FileHandler.save(save_path, key)
+            messagebox.showinfo("Success", "Key recovered.")
