@@ -10,7 +10,7 @@ class OTPApp:
     def __init__(self, root: tk.Tk):
         self.root = root
         root.title("OTP Cryptography Toolkit")
-        root.geometry("520x620")
+        root.geometry("1920x1080")
         root.configure(bg="#0f172a")  # dark blue background
         root.resizable(False, False)
 
@@ -100,7 +100,6 @@ class OTPApp:
         # ====== FOOTER ======
         tk.Label(
             root,
-            text="Educational Use Only • OTP Demonstration",
             font=("Segoe UI", 9),
             fg="#94a3b8",
             bg=self.bg
